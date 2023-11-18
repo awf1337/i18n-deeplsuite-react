@@ -9,10 +9,7 @@
   "scripts": {
     "start": "node ./src/index.js",
     "lint": "eslint ./src/*",
-    "lint:fix": "eslint ./src/* --fix",
-    "test": "jest",
-    "test:watch": "jest --watch",
-    "test:coverage": "jest --coverage"
+    "lint:fix": "eslint ./src/* --fix"
   },
   "repository": {
     "type": "git",
@@ -52,23 +49,5 @@
     "lodash": "^4.17.11",
     "mkdirp": "^0.5.1",
     "randchinese": "^1.0.0"
-  },
-  "jest": {
-    "testPathIgnorePatterns": [
-      "/node_modules/",
-      "/scratchpad",
-      "/test/walking_test"
-    ],
-    "watchPathIgnorePatterns": [
-      "fixtures/*",
-      "__file_snapshots__",
-      "/test/walking_test"
-    ]
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "npm run lint",
-      "pre-push": "npm test"
-    }
   }
 }
