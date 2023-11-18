@@ -8,5 +8,5 @@ const tUseTranslation = babylon.parse('const { t } = useTranslation();\n', { sou
 module.exports = {
   i18nextImportStatement,
   kImportStatement,
-  tUseTranslation
+  tUseTranslation,
 };

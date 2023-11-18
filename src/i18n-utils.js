@@ -56,7 +56,7 @@ const generateI18FilesTs = (outputDir, sourceDir) => {
   fs.writeFileSync(romanianFilePath, fileContent)
 
   const englishLut = LutManager.getLut();
-  const templatesPath  = path.join(outputDir, sourceDir, i18DirSystem, templatesDirSystem, templateFileSystem)
+  const templatesPath = path.join(outputDir, sourceDir, i18DirSystem, templatesDirSystem, templateFileSystem)
 
   fs.writeFileSync(templatesPath, lutToLanguageCodeHelper(englishLut, true));
 };

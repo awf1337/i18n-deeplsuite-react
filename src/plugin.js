@@ -3,7 +3,6 @@ const _ = require('lodash');
 const {
   i18nextImportStatement,
   kImportStatement,
-  tUseTranslation,
 } = require('./frozen-asts');
 
 const {
