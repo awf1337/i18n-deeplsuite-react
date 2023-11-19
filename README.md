@@ -8,8 +8,8 @@ Internationalize legacy react apps in a lunch break.
 ## Getting started
 
 1. To run this project locally:
-  - clone project open it and run cmd "node link"
-  - go to you your project where you wanna run this and run cmd "node link i18n-deeplsuite-react"
+  - clone project open it and run cmd "npm link"
+  - go to you your project where you wanna run this and run cmd "npm link i18n-deeplsuite-react"
   - after this run cmd "i18n-deeplsuite-react ts" in your project for a ts project
 
 # Acknowledgments

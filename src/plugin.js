@@ -79,7 +79,6 @@ module.exports = ({ types: t }) => ({
         // Only extract the value of identifiers
         // who are children of some JSX element
         if (path.findParent(p => p.isJSXElement())) {
-          // console.log("@@@@@@", path)
           this.state[path.node.name] = _.merge(this.state[path.node.name], { valid: true });
         }
       },
@@ -104,9 +103,6 @@ module.exports = ({ types: t }) => ({
           this.state[key] = _.merge(this.state[key], { valid: true });
         });
 
-        // const codeToInsert = tUseTranslation;
-        // path.insertBefore(codeToInsert);
-
         quasis.forEach((templateElement, index) => {
           const coreValue = templateElement.value.raw.trim();
           if (coreValue.length) {
@@ -116,8 +112,8 @@ module.exports = ({ types: t }) => ({
             // TODO: Replace the path instead of modifying the raw
             // Construct the AST node for the code you want to insert
 
-            qPath.node.value.raw = qPath.node.value.raw.replace(coreValue, `\${t(translations.${kValue})}`);
-            qPath.node.value.cooked = qPath.node.value.cooked.replace(coreValue, `\${t(translations.${kValue})}`);
+            qPath.node.value.raw = qPath.node.value.raw.replace(coreValue, `\${tHook(translations.${kValue})}`);
+            qPath.node.value.cooked = qPath.node.value.cooked.replace(coreValue, `\${tHook(translations.${kValue})}`);
           }
         });
       },
@@ -158,7 +154,42 @@ module.exports = ({ types: t }) => ({
         if (!coreValue.length) return;
         const kValue = getUniqueKeyFromFreeText(coreValue);
         // TODO: OPTIMIZATION: Use quasi quotes to optimize this
-        path.node.value = path.node.value.replace(coreValue, `{t(translations.${kValue})}`);
+        path.node.value = path.node.value.replace(coreValue, `{tHook(translations.${kValue})}`);
+
+        const functionDeclarationAncestor = path.find(path => path.isFunctionDeclaration() || path.isArrowFunctionExpression());
+
+        if (functionDeclarationAncestor) {
+
+          const testVariableExists = functionDeclarationAncestor
+            .get('body').get('body')
+            .find((statement) =>
+
+              statement.isVariableDeclaration()&&
+              statement.node.declarations.some((declaration) =>
+              declaration.id.type === 'ObjectPattern' &&
+              declaration.id.properties.some(
+                (property) => property.key.name === 't' && property.value.name === 'tHook'
+              )
+            )
+          );
+
+          if (!testVariableExists) {
+            // Inject the line at the beginning of the function body
+            functionDeclarationAncestor.get('body').unshiftContainer(
+              'body',
+              t.variableDeclaration('const', [
+                t.variableDeclarator(
+                  t.objectPattern([
+                    t.objectProperty(t.identifier('t'), t.identifier('tHook')),
+                  ]),
+                  t.callExpression(t.identifier('useTranslation'), [])
+                ),
+              ])
+            );
+          }
+
+        }
+
       },
     },
     StringLiteral: {

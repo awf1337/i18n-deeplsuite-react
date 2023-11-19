@@ -19,7 +19,7 @@ i18n
     load: "all",
     // https://github.com/i18next/i18next-browser-languageDetector#detector-options
     detection: {
-      convertDetectedLanguage: (lng) => lng.split("-")[0],
+      convertDetectedLanguage: (lng: string) => lng.split("-")[0],
     },
   })
   .catch(() => true)
