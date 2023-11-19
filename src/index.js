@@ -11,6 +11,8 @@ const { default: traverse } = require('@babel/traverse');
 const { default: relativeImportPlugin } = require('babel-project-relative-import');
 const { runPrettierCmd } = require('./utils/runPrettierCmd')
 const { runESLintCmd } = require('./utils/runESLintCmd')
+const { installReactI18Next } = require('./utils/installReactT18Next')
+
 
 const myPlugin = require('./plugin');
 const { walk } = require('./walker');
@@ -33,7 +35,6 @@ if (isESlint) {
 const inputDir = process.argv[2] || './';
 const outputDir = process.argv[3] || './';
 const sourceDir = process.argv[4] || 'src'; // Default in React projects
-const isDry = process.argv[5] || false; // Dont transform (just for testing)
 
 const transformFile = (fileName) => {
   try {
@@ -44,24 +45,23 @@ const transformFile = (fileName) => {
       plugins: parserPlugins,
     });
 
-    if (!isDry) {
-      // Run the plugin
-      traverse(ast, myPlugin(babel).visitor);
+    // Run the plugin
+    traverse(ast, myPlugin(babel).visitor);
 
-      // Convert all the ~/i18n/keys to <workplace_dir>/src/i18n/keys
-      const state = {
-        file: {
-          opts: {
-            sourceRoot: path.resolve(inputDir),
-            filename: fileName,
-          },
-        },
+    // Convert all the ~/i18n/keys to <workplace_dir>/src/i18n/keys
+    const state = {
+      file: {
         opts: {
-          sourceDir,
+          sourceRoot: path.resolve(inputDir),
+          filename: fileName,
         },
-      };
-      traverse(ast, relativeImportPlugin(babel).visitor, null, state);
-    }
+      },
+      opts: {
+        sourceDir,
+      },
+    };
+    traverse(ast, relativeImportPlugin(babel).visitor, null, state);
+
 
     const { code } = generate(ast, generatorOptions);
 
@@ -90,12 +90,10 @@ const allFiles = walk(path.join(path.resolve(inputDir), sourceDir), isTypeScript
 allFiles.forEach(fileName => transformFile(fileName));
 
 
-if (!isDry) isTypeScript ? generateI18FilesTs(outputDir, sourceDir) : generateI18nFiles(outputDir, sourceDir);
+isTypeScript ? generateI18FilesTs(outputDir, sourceDir) : generateI18nFiles(outputDir, sourceDir);
 
-if (isDry) {
-  console.log('Successfully did a dry walk');
-}
 
 runPrettierCmd('src')
+installReactI18Next()
 
 // npm start ../input-directory ../output-directory
